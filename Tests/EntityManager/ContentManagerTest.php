@@ -225,7 +225,7 @@ class ContentManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetThrowsMissingLocaleException()
     {
-        $this->expectException(MissingLocaleException::class);
+        $this->setExpectedException(MissingLocaleException::class);
 
         $manager = new ContentManager($this->em);
         $manager->get('name');
