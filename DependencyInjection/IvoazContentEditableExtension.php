@@ -34,10 +34,10 @@ class IvoazContentEditableExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         if (isset($config['editor'])) {
-            $container->getDefinition('ivoaz.content_editable.twig_extension')
+            $container->getDefinition('ivoaz_content_editable.twig_extension')
                 ->replaceArgument(2, new Reference($config['editor']));
 
-            $container->getDefinition('ivoaz.content_editable.editor_response_listener')
+            $container->getDefinition('ivoaz_content_editable.editor_response_listener')
                 ->replaceArgument(0, new Reference($config['editor']));
         }
     }

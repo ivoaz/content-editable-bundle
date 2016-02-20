@@ -5,6 +5,6 @@
         http://symfony.com/schema/routing/routing-1.0.xsd">
 
     <route id="ivoaz_content_editable_update" path="/contents/{id}" methods="PATCH">
-        <default key="_controller">ivoaz.content_editable.controller:updateAction</default>
+        <default key="_controller">ivoaz_content_editable.controller:updateAction</default>
     </route>
 </routes>

@@ -5,39 +5,43 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="ivoaz.content_editable.controller.class">Ivoaz\Bundle\ContentEditableBundle\Controller\ContentController</parameter>
-        <parameter key="ivoaz.content_editable.default_editor.class">Ivoaz\Bundle\ContentEditableBundle\Editor\DefaultEditor</parameter>
-        <parameter key="ivoaz.content_editable.manager.class">Ivoaz\Bundle\ContentEditableBundle\EntityManager\ContentManager</parameter>
-        <parameter key="ivoaz.content_editable.twig_extension.class">Ivoaz\Bundle\ContentEditableBundle\Twig\ContentEditableExtension</parameter>
-        <parameter key="ivoaz.content_editable.editor_response_listener.class">Ivoaz\Bundle\ContentEditableBundle\EventListener\EditorResponseListener</parameter>
+        <parameter key="ivoaz_content_editable.controller.class">Ivoaz\Bundle\ContentEditableBundle\Controller\ContentController</parameter>
+        <parameter key="ivoaz_content_editable.default_editor.class">Ivoaz\Bundle\ContentEditableBundle\Editor\DefaultEditor</parameter>
+        <parameter key="ivoaz_content_editable.manager.class">Ivoaz\Bundle\ContentEditableBundle\EntityManager\ContentManager</parameter>
+        <parameter key="ivoaz_content_editable.twig_extension.class">Ivoaz\Bundle\ContentEditableBundle\Twig\ContentEditableExtension</parameter>
+        <parameter key="ivoaz_content_editable.editor_response_listener.class">Ivoaz\Bundle\ContentEditableBundle\EventListener\EditorResponseListener</parameter>
     </parameters>
 
     <services>
-        <service id="ivoaz.content_editable.controller" class="%ivoaz.content_editable.controller.class%">
-            <argument type="service" id="ivoaz.content_editable.manager"/>
+        <service id="ivoaz_content_editable.controller" class="%ivoaz_content_editable.controller.class%">
+            <argument type="service" id="ivoaz_content_editable.manager"/>
             <argument type="service" id="form.factory"/>
             <argument type="service" id="security.authorization_checker"/>
         </service>
 
-        <service id="ivoaz.content_editable.twig_extension" class="%ivoaz.content_editable.twig_extension.class%">
-            <argument type="service" id="ivoaz.content_editable.manager"/>
+        <service id="ivoaz_content_editable.twig_extension"
+                 class="%ivoaz_content_editable.twig_extension.class%"
+                 public="false">
+            <argument type="service" id="ivoaz_content_editable.manager"/>
             <argument type="service" id="security.authorization_checker"/>
-            <argument type="service" id="ivoaz.content_editable.default_editor"/>
+            <argument type="service" id="ivoaz_content_editable.default_editor"/>
             <tag name="twig.extension"/>
         </service>
 
-        <service id="ivoaz.content_editable.default_editor" class="%ivoaz.content_editable.default_editor.class%">
+        <service id="ivoaz_content_editable.default_editor"
+                 class="%ivoaz_content_editable.default_editor.class%"
+                 public="false">
             <argument type="service" id="service_container"/>
         </service>
 
-        <service id="ivoaz.content_editable.manager" class="%ivoaz.content_editable.manager.class%">
+        <service id="ivoaz_content_editable.manager" class="%ivoaz_content_editable.manager.class%">
             <argument type="service" id="doctrine.orm.entity_manager"/>
             <argument type="service" id="request_stack"/>
         </service>
 
-        <service id="ivoaz.content_editable.editor_response_listener"
-                 class="%ivoaz.content_editable.editor_response_listener.class%">
-            <argument type="service" id="ivoaz.content_editable.default_editor"/>
+        <service id="ivoaz_content_editable.editor_response_listener"
+                 class="%ivoaz_content_editable.editor_response_listener.class%">
+            <argument type="service" id="ivoaz_content_editable.default_editor"/>
             <argument type="service" id="security.authorization_checker"/>
             <tag name="kernel.event_listener" event="kernel.response" method="onKernelResponse" priority="-128"/>
         </service>

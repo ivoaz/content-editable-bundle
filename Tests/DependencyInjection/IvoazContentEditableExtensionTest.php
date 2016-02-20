@@ -44,7 +44,7 @@ class IvoazContentEditableExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->extension->load($configs, $this->container);
 
-        $definition = $this->container->getDefinition('ivoaz.content_editable.twig_extension');
+        $definition = $this->container->getDefinition('ivoaz_content_editable.twig_extension');
         $editor = $definition->getArgument(2);
 
         $expectedEditor = new Reference($expectedEditor);
@@ -58,7 +58,7 @@ class IvoazContentEditableExtensionTest extends \PHPUnit_Framework_TestCase
     public function getEditorConfigurationTestData()
     {
         return [
-            ['ivoaz.content_editable.default_editor', [], 'The default editor was not used.'],
+            ['ivoaz_content_editable.default_editor', [], 'The default editor was not used.'],
             ['custom_editor_service', [['editor' => 'custom_editor_service']], 'Custom editor service was not set.'],
         ];
     }

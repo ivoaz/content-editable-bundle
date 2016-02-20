@@ -29,7 +29,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->scalarNode('editor')->defaultValue('ivoaz.content_editable.default_editor')
+                ->scalarNode('editor')->defaultValue('ivoaz_content_editable.default_editor')
             ->end();
 
         return $treeBuilder;
