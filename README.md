@@ -23,7 +23,7 @@ Here's another example with larger content:
 {% contenteditable %}
 ```
 
-[![Build Status](https://secure.travis-ci.org/ivoaz/IvoazContentEditableBundle.png)](http://travis-ci.org/liip/IvoazContentEditableBundle)
+[![Build Status](https://travis-ci.org/ivoaz/content-editable-bundle.svg?branch=master)](https://travis-ci.org/ivoaz/content-editable-bundle)
 [![Total Downloads](https://poser.pugx.org/ivoaz/content-editable-bundle/downloads.png)](https://packagist.org/packages/ivoaz/content-editable-bundle)
 [![Latest Stable Version](https://poser.pugx.org/ivoaz/content-editable-bundle/v/stable.png)](https://packagist.org/packages/ivoaz/content-editable-bundle)
 
