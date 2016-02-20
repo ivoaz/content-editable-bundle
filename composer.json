@@ -1,0 +1,32 @@
+{
+    "name": "ivoaz/content-editable-bundle",
+    "type": "symfony-bundle",
+    "description": "This bundle provides a twig extension for editable content with internationalization support.",
+    "keywords": ["contenteditable"],
+    "homepage": "https://github.com/ivoaz/content-editable-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ivo Azirjans",
+            "email": "ivo.azirjans@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9",
+        "doctrine/orm": "~2.5",
+        "symfony/config": "~3.0",
+        "symfony/dependency-injection": "~3.0",
+        "symfony/form": "~3.0",
+        "symfony/event-dispatcher": "~3.0",
+        "symfony/http-foundation": "~3.0",
+        "symfony/security": "~3.0",
+        "symfony/validator": "~3.0",
+        "twig/twig": "~1.23"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~5.1"
+    },
+    "autoload": {
+        "psr-4": { "Ivoaz\\Bundle\\ContentEditableBundle\\": "" }
+    }
+}

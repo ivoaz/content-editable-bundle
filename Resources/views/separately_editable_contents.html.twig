@@ -1,0 +1,8 @@
+<div id="ivoaz-content-editable-separate">
+    {% for content in contents %}
+        <div>
+            <div class="ivoaz-content-editable-name">{{ content.name }}</div>
+            <div class="ivoaz-content-editable-text ivoaz-content-editable" data-ivoaz-content-editable-id="{{ content.id }}">{{ content.text | raw }}</div>
+        </div>
+    {% endfor %}
+</div>
