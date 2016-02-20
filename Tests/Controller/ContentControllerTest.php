@@ -20,6 +20,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class ContentControllerTest extends \PHPUnit_Framework_TestCase
 {
@@ -39,6 +40,11 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
     private $form;
 
     /**
+     * @var AuthorizationCheckerInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $authorizationChecker;
+
+    /**
      * @var ContentController
      */
     private $controller;
@@ -50,12 +56,15 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
         $this->formFactory = $this->getMock(FormFactoryInterface::class);
         $this->formFactory->method('create')
             ->willReturn($this->form);
+        $this->authorizationChecker = $this->getMock(AuthorizationCheckerInterface::class);
 
-        $this->controller = new ContentController($this->manager, $this->formFactory);
+        $this->controller = new ContentController($this->manager, $this->formFactory, $this->authorizationChecker);
     }
 
     public function testUpdateActionReturnsErrorWhenContentNotFound()
     {
+        $this->setAuthorized(true);
+
         $this->manager->method('find')
             ->with(1)
             ->willReturn(null);
@@ -74,6 +83,8 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
 
     public function testUpdateActionReturnsFormErrors()
     {
+        $this->setAuthorized(true);
+
         $content = new Content();
 
         $this->manager->method('find')
@@ -106,6 +117,8 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
 
     public function testUpdateActionUpdatesContent()
     {
+        $this->setAuthorized(true);
+
         $content = new Content();
 
         $this->manager->method('find')
@@ -125,5 +138,27 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
         $expectedResponse = new Response('', Response::HTTP_NO_CONTENT, ['Content-Type' => 'application/vnd.api+json']);
 
         $this->assertEquals($expectedResponse, $response);
+    }
+
+    public function testUpdateActionIsForbidden()
+    {
+        $this->setAuthorized(false);
+
+        $request = new Request([], [], ['id' => 1]);
+        $response = $this->controller->updateAction($request);
+
+        $expectedResponse = new Response('', Response::HTTP_FORBIDDEN, ['Content-Type' => 'application/vnd.api+json']);
+
+        $this->assertEquals($expectedResponse, $response);
+    }
+
+    /**
+     * @param bool $authorized
+     */
+    private function setAuthorized($authorized)
+    {
+        $this->authorizationChecker->method('isGranted')
+            ->with('ROLE_ADMIN')
+            ->willReturn($authorized);
     }
 }

@@ -18,6 +18,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\Constraints;
 
 /**
@@ -36,24 +37,36 @@ class ContentController
     private $formFactory;
 
     /**
-     * @param ContentManagerInterface $manager
-     * @param FormFactoryInterface    $formFactory
+     * @var AuthorizationCheckerInterface
+     */
+    private $authorizationChecker;
+
+    /**
+     * @param ContentManagerInterface       $manager
+     * @param FormFactoryInterface          $formFactory
+     * @param AuthorizationCheckerInterface $authorizationChecker
      */
     public function __construct(
         ContentManagerInterface $manager,
-        FormFactoryInterface $formFactory
+        FormFactoryInterface $formFactory,
+        AuthorizationCheckerInterface $authorizationChecker
     ) {
         $this->manager = $manager;
         $this->formFactory = $formFactory;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
     /**
      * @param Request $request
      *
-     * @return JsonResponse
+     * @return Response
      */
     public function updateAction(Request $request)
     {
+        if (!$this->authorizationChecker->isGranted('ROLE_ADMIN')) {
+            return new Response('', Response::HTTP_FORBIDDEN, ['Content-Type' => 'application/vnd.api+json']);
+        }
+
         $id = $request->get('id');
 
         $content = $this->manager->find($id);

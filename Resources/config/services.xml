@@ -16,6 +16,7 @@
         <service id="ivoaz.content_editable.controller" class="%ivoaz.content_editable.controller.class%">
             <argument type="service" id="ivoaz.content_editable.manager"/>
             <argument type="service" id="form.factory"/>
+            <argument type="service" id="security.authorization_checker"/>
         </service>
 
         <service id="ivoaz.content_editable.twig_extension" class="%ivoaz.content_editable.twig_extension.class%">
