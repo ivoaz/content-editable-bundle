@@ -78,7 +78,15 @@ class AppKernel extends Kernel
 }
 ```
 
-### Step 3: Configure the routing
+### Step 3: Update database schema
+
+Contents are stored in the database, so you need to update the schema:
+
+```bash
+$ bin/console doctrine:schema:update --force
+```
+
+### Step 4: Configure the routing
 
 Now configure the routing with the prefix you want:
 
@@ -90,7 +98,7 @@ ivoaz_contente_ditable:
 
 ```
 
-### Step 4: Install the assets
+### Step 5: Install the assets
 
 Lastly, if you are not making your own editor, install the assets needed for the
 default editor:
