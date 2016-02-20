@@ -30,7 +30,7 @@ Here's another example with larger content:
 Requirements
 ------------
 
-* Symfony ~3.0
+* Symfony ~2.8|~3.0
 * For other library requirements see the `require` section of
   [composer.json](composer.json)
 
