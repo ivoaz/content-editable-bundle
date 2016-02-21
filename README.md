@@ -10,12 +10,12 @@ Example usage:
 <h1>{{ 'Go ahead, edit away!' | contenteditable }}</h1>
 ```
 
-This saves the content of current locale in the database and lets a user with
-`ROLE_ADMIN` permission edit the content with the browser's
+This saves the content of the current locale in the database and lets a user
+with a `ROLE_ADMIN` permission edit the content with the browser's
 [content editable](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_Editable)
 feature.
 
-Here's another example with larger content:
+Here's another example with a larger content:
 ```twig
 {% contenteditable "content_editable_description" %}
     <h2>HTMLElement.contentEditable</h2>
@@ -30,15 +30,15 @@ Here's another example with larger content:
 Requirements
 ------------
 
+* PHP >=5.5
 * Symfony ~2.8|~3.0
-* For other library requirements see the `require` section of
-  [composer.json](composer.json)
+* Doctrine ORM ~2.4
+* Twig ~1.23
 
 Installation
 ------------
 
 ### Step 1: Download the Bundle
-
 
 Open a command console, enter your project directory and execute the
 following command to download the latest version of this bundle:
@@ -78,7 +78,7 @@ class AppKernel extends Kernel
 }
 ```
 
-### Step 3: Update database schema
+### Step 3: Update the database schema
 
 Contents are stored in the database, so you need to update the schema:
 

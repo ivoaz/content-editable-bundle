@@ -43,7 +43,7 @@ class ContentManager implements ContentManagerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function update(Content $content)
     {
@@ -62,7 +62,7 @@ class ContentManager implements ContentManagerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function get($name, $default = null, $locale = null)
     {
