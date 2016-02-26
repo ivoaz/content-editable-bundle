@@ -24,8 +24,11 @@ Here's another example with a larger content:
 ```
 
 [![Build Status](https://travis-ci.org/ivoaz/content-editable-bundle.svg?branch=master)](https://travis-ci.org/ivoaz/content-editable-bundle)
+[![Build Status](https://scrutinizer-ci.com/g/ivoaz/content-editable-bundle/badges/build.png?b=master)](https://scrutinizer-ci.com/g/ivoaz/content-editable-bundle/build-status/master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/ivoaz/content-editable-bundle/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/ivoaz/content-editable-bundle/?branch=master)
 [![Total Downloads](https://poser.pugx.org/ivoaz/content-editable-bundle/downloads.png)](https://packagist.org/packages/ivoaz/content-editable-bundle)
 [![Latest Stable Version](https://poser.pugx.org/ivoaz/content-editable-bundle/v/stable.png)](https://packagist.org/packages/ivoaz/content-editable-bundle)
+
 
 Requirements
 ------------
