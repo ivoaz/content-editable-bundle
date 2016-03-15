@@ -15,6 +15,7 @@ use Ivoaz\Bundle\ContentEditableBundle\Editor\EditorInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 /**
  * @author Ivo Azirjans <ivo.azirjans@gmail.com>
