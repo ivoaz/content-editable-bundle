@@ -50,7 +50,12 @@ class EditorResponseListener
             return;
         }
 
-        if (!$this->authorizationChecker->isGranted('ROLE_ADMIN')) {
+        try {
+            if (!$this->authorizationChecker->isGranted('ROLE_ADMIN')) {
+                return;
+            }
+        }
+        catch (AuthenticationCredentialsNotFoundException $e) {
             return;
         }
 
