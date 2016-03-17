@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 class EditorResponseListenerTest extends \PHPUnit_Framework_TestCase
 {
@@ -150,6 +151,34 @@ class EditorResponseListenerTest extends \PHPUnit_Framework_TestCase
                 'Editor should not be rendered when not authorized.',
             ],
         ];
+    }
+
+    public function testEditorIsNotRenderedWhenNotBehindFirewall()
+    {
+        $this->editor->method('renderEditor')
+            ->willReturn('<div>editor</div>');
+
+        $this->authorizationChecker->method('isGranted')
+            ->with('ROLE_ADMIN')
+            ->willThrowException(new AuthenticationCredentialsNotFoundException());
+
+        $request = new Request();
+        $response = new Response(
+            '<body></body>',
+             200,
+            ['Content-Type' => 'text/html']
+        );
+
+        $this->event->method('getRequest')
+            ->willReturn($request);
+        $this->event->method('getResponse')
+            ->willReturn($response);
+        $this->event->method('isMasterRequest')
+            ->willReturn(true);
+
+        $this->listener->onKernelResponse($this->event);
+
+        $this->assertSame('<body></body>', $response->getContent());
     }
 
     public function testEditorIsInjectedOnKernelResponse()
