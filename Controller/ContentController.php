@@ -15,9 +15,8 @@ use Ivoaz\Bundle\ContentEditableBundle\Form\Type\ContentType;
 use Ivoaz\Bundle\ContentEditableBundle\Manager\ContentManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\Constraints;
 
@@ -59,12 +58,12 @@ class ContentController
     /**
      * @param Request $request
      *
-     * @return Response
+     * @return JsonResponse
      */
     public function updateAction(Request $request)
     {
         if (!$this->authorizationChecker->isGranted('ROLE_ADMIN')) {
-            return new Response('', Response::HTTP_FORBIDDEN, ['Content-Type' => 'application/vnd.api+json']);
+            return new JsonResponse(null, JsonResponse::HTTP_FORBIDDEN);
         }
 
         $id = $request->get('id');
@@ -75,11 +74,10 @@ class ContentController
             return $this->createErrorResponse([['title' => sprintf('Content with id "%s" does not exist.', $id)]]);
         }
 
-        $requestData = json_decode($request->getContent(), true);
-        $contentData = isset($requestData['data']) ? $requestData['data'] : [];
+        $data = json_decode($request->getContent(), true);
 
         $form = $this->formFactory->create(ContentType::class, $content);
-        $form->submit($contentData);
+        $form->submit($data);
 
         if (!$form->isValid()) {
             $errors = $this->getErrors($form);
@@ -89,7 +87,7 @@ class ContentController
 
         $this->manager->update($content);
 
-        return new Response('', Response::HTTP_NO_CONTENT, ['Content-Type' => 'application/vnd.api+json']);
+        return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
     }
 
     /**
@@ -116,6 +114,6 @@ class ContentController
      */
     private function createErrorResponse(array $errors, $status = 400)
     {
-        return new JsonResponse(['errors' => $errors], $status, ['Content-Type' => 'application/vnd.api+json']);
+        return new JsonResponse(['errors' => $errors], $status);
     }
 }

@@ -57,13 +57,9 @@
     function save() {
         var request = new XMLHttpRequest();
         request.open('PATCH', updateUrl.replace(':id', current.dataset.ivoazContentEditableId), true);
-        request.setRequestHeader('Content-Type', 'application/vnd.api+json');
-        request.setRequestHeader('Accept', 'application/vnd.api+json');
-        request.send(JSON.stringify({
-            data: {
-                text: current.innerHTML
-            }
-        }));
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.setRequestHeader('Accept', 'application/json');
+        request.send(JSON.stringify({ text: current.innerHTML }));
 
         current.contentEditable = false;
     }

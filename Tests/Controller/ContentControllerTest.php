@@ -19,7 +19,6 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class ContentControllerTest extends \PHPUnit_Framework_TestCase
@@ -74,8 +73,7 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
 
         $expectedResponse = new JsonResponse(
             ['errors' => [['title' => sprintf('Content with id "1" does not exist.')]]],
-            400,
-            ['Content-Type' => 'application/vnd.api+json']
+            400
         );
 
         $this->assertEquals($expectedResponse, $response);
@@ -108,8 +106,7 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
 
         $expectedResponse = new JsonResponse(
             ['errors' => [['title' => 'Test error1'], ['title' => 'Test error2']]],
-            400,
-            ['Content-Type' => 'application/vnd.api+json']
+            400
         );
 
         $this->assertEquals($expectedResponse, $response);
@@ -135,7 +132,7 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
         $request = new Request([], [], ['id' => 1]);
         $response = $this->controller->updateAction($request);
 
-        $expectedResponse = new Response('', Response::HTTP_NO_CONTENT, ['Content-Type' => 'application/vnd.api+json']);
+        $expectedResponse = new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
 
         $this->assertEquals($expectedResponse, $response);
     }
@@ -147,7 +144,7 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
         $request = new Request([], [], ['id' => 1]);
         $response = $this->controller->updateAction($request);
 
-        $expectedResponse = new Response('', Response::HTTP_FORBIDDEN, ['Content-Type' => 'application/vnd.api+json']);
+        $expectedResponse = new JsonResponse(null, JsonResponse::HTTP_FORBIDDEN);
 
         $this->assertEquals($expectedResponse, $response);
     }
