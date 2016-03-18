@@ -14,6 +14,7 @@ namespace Ivoaz\Bundle\ContentEditableBundle\Tests\Controller;
 use Ivoaz\Bundle\ContentEditableBundle\Controller\ContentController;
 use Ivoaz\Bundle\ContentEditableBundle\Entity\Content;
 use Ivoaz\Bundle\ContentEditableBundle\Form\Model\Batch;
+use Ivoaz\Bundle\ContentEditableBundle\Form\Model\BatchContent;
 use Ivoaz\Bundle\ContentEditableBundle\Form\Model\Content as FormContent;
 use Ivoaz\Bundle\ContentEditableBundle\Manager\ContentManagerInterface;
 use Symfony\Component\Form\FormError;
@@ -262,8 +263,8 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
     private function getBatch()
     {
         $batch = new Batch();
-        $batch->contents[] = new FormContent();
-        $batch->contents[] = new FormContent();
+        $batch->contents[] = new BatchContent();
+        $batch->contents[] = new BatchContent();
         $batch->contents[0]->id = 1;
         $batch->contents[1]->id = 2;
         $batch->contents[0]->text = 'Text 1';
