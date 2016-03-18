@@ -23,6 +23,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Validator\ConstraintViolation;
 
 class ContentControllerTest extends \PHPUnit_Framework_TestCase
 {
@@ -97,22 +98,12 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
 
         $this->form->method('getErrors')
             ->with(true, true)
-            ->willReturn(
-                [
-                    new FormError('Test error1'),
-                    new FormError('Test error2'),
-                ]
-            );
+            ->willReturn($this->getMultipleErrors());
 
         $request = new Request([], [], ['id' => 1]);
         $response = $this->controller->updateAction($request);
 
-        $expectedResponse = new JsonResponse(
-            ['errors' => [['title' => 'Test error1'], ['title' => 'Test error2']]],
-            400
-        );
-
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($this->getMultipleErrorResponse(), $response);
     }
 
     public function testUpdateActionUpdatesContent()
@@ -180,21 +171,11 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
 
         $this->form->method('getErrors')
             ->with(true, true)
-            ->willReturn(
-                [
-                    new FormError('Test error1'),
-                    new FormError('Test error2'),
-                ]
-            );
+            ->willReturn($this->getMultipleErrors());
 
         $response = $this->controller->batchUpdateAction(new Request());
 
-        $expectedResponse = new JsonResponse(
-            ['errors' => [['title' => 'Test error1'], ['title' => 'Test error2']]],
-            400
-        );
-
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($this->getMultipleErrorResponse(), $response);
     }
 
     public function testBatchUpdateActionUpdatesContent()
@@ -271,5 +252,48 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
         $batch->contents[1]->text = 'Text 2';
 
         return $batch;
+    }
+
+    /**
+     * @return array
+     */
+    private function getMultipleErrors()
+    {
+        $errors = [
+            new FormError(
+                'Test error1',
+                null,
+                [],
+                null,
+                new ConstraintViolation('', '', [], null, 'field1', null)
+            ),
+            new FormError(
+                'Test error2',
+                null,
+                [],
+                null,
+                new ConstraintViolation('', '', [], null, 'field2', null)
+            ),
+        ];
+
+        return $errors;
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    private function getMultipleErrorResponse()
+    {
+        $response = new JsonResponse(
+            [
+                'errors' => [
+                    ['field' => 'field1', 'title' => 'Test error1'],
+                    ['field' => 'field2', 'title' => 'Test error2'],
+                ],
+            ],
+            400
+        );
+
+        return $response;
     }
 }

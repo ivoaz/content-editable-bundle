@@ -43,7 +43,16 @@ class BatchType extends AbstractType
             [
                 'data_class'      => Batch::class,
                 'csrf_protection' => false,
+                'method'          => 'POST',
             ]
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return '';
     }
 }

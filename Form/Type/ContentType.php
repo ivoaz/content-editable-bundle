@@ -38,7 +38,16 @@ class ContentType extends AbstractType
             [
                 'data_class'      => Content::class,
                 'csrf_protection' => false,
+                'method'          => 'PUT',
             ]
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return '';
     }
 }

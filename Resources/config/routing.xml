@@ -4,7 +4,11 @@
         xsi:schemaLocation="http://symfony.com/schema/routing
         http://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <route id="ivoaz_content_editable_update" path="/contents/{id}" methods="PATCH">
+    <route id="ivoaz_content_editable_update" path="/contents/{id}" methods="PUT">
         <default key="_controller">ivoaz_content_editable.controller:updateAction</default>
+    </route>
+
+    <route id="ivoaz_content_editable_batch_update" path="/contents" methods="POST">
+        <default key="_controller">ivoaz_content_editable.controller:batchUpdateAction</default>
     </route>
 </routes>

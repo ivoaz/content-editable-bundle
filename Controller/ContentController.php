@@ -11,6 +11,7 @@
 
 namespace Ivoaz\Bundle\ContentEditableBundle\Controller;
 
+use Ivoaz\Bundle\ContentEditableBundle\Form\Type\BatchType;
 use Ivoaz\Bundle\ContentEditableBundle\Form\Type\ContentBatchType;
 use Ivoaz\Bundle\ContentEditableBundle\Form\Type\ContentType;
 use Ivoaz\Bundle\ContentEditableBundle\Manager\ContentManagerInterface;
@@ -75,7 +76,7 @@ class ContentController
         }
 
         $form = $this->formFactory->create(ContentType::class);
-        $form->handleRequest($request);
+        $form->submit($this->getDataFromJsonRequest($request));
 
         if (!$form->isValid()) {
             $errors = $this->getErrors($form);
@@ -101,7 +102,7 @@ class ContentController
         }
 
         $form = $this->formFactory->create(BatchType::class);
-        $form->handleRequest($request);
+        $form->submit($this->getDataFromJsonRequest($request));
 
         if (!$form->isValid()) {
             $errors = $this->getErrors($form);
@@ -146,7 +147,7 @@ class ContentController
         $errors = [];
 
         foreach ($form->getErrors(true, true) as $error) {
-            $errors[] = ['title' => $error->getMessage()];
+            $errors[] = ['field' => $error->getCause()->getPropertyPath(), 'title' => $error->getMessage()];
         }
 
         return $errors;
@@ -179,5 +180,17 @@ class ContentController
     private function createContentNotFoundError($id)
     {
         return ['title' => sprintf('Content with id "%s" was not found.', $id)];
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return array|null
+     */
+    private function getDataFromJsonRequest(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+
+        return $data;
     }
 }

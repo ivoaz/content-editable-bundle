@@ -56,7 +56,7 @@
 
     function save() {
         var request = new XMLHttpRequest();
-        request.open('PATCH', updateUrl.replace(':id', current.dataset.ivoazContentEditableId), true);
+        request.open('PUT', updateUrl.replace(':id', current.dataset.ivoazContentEditableId), true);
         request.setRequestHeader('Content-Type', 'application/json');
         request.setRequestHeader('Accept', 'application/json');
         request.send(JSON.stringify({ text: current.innerHTML }));
