@@ -11,22 +11,24 @@
 
 namespace Ivoaz\Bundle\ContentEditableBundle\Form\Type;
 
-use Ivoaz\Bundle\ContentEditableBundle\Form\Model\Content;
-use Symfony\Component\Form\AbstractType;
+use Ivoaz\Bundle\ContentEditableBundle\Form\Model\BatchContent;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Ivo Azirjans <ivo.azirjans@gmail.com>
  */
-class ContentType extends AbstractType
+class BatchContentType extends ContentType
 {
     /**
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('text');
+        parent::buildForm($builder, $options);
+
+        $builder->add('id');
     }
 
     /**
@@ -34,10 +36,11 @@ class ContentType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
+        parent::configureOptions($resolver);
+
         $resolver->setDefaults(
             [
-                'data_class'      => Content::class,
-                'csrf_protection' => false,
+                'data_class' => BatchContent::class,
             ]
         );
     }

@@ -11,6 +11,7 @@
 
 namespace Ivoaz\Bundle\ContentEditableBundle\Controller;
 
+use Ivoaz\Bundle\ContentEditableBundle\Form\Type\ContentBatchType;
 use Ivoaz\Bundle\ContentEditableBundle\Form\Type\ContentType;
 use Ivoaz\Bundle\ContentEditableBundle\Manager\ContentManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -62,22 +63,19 @@ class ContentController
      */
     public function updateAction(Request $request)
     {
-        if (!$this->authorizationChecker->isGranted('ROLE_ADMIN')) {
+        if (!$this->isAuthorized()) {
             return new JsonResponse(null, JsonResponse::HTTP_FORBIDDEN);
         }
 
         $id = $request->get('id');
-
         $content = $this->manager->find($id);
 
         if (null === $content) {
-            return $this->createErrorResponse([['title' => sprintf('Content with id "%s" does not exist.', $id)]]);
+            return $this->createErrorResponse([$this->createContentNotFoundError($id)]);
         }
 
-        $data = json_decode($request->getContent(), true);
-
-        $form = $this->formFactory->create(ContentType::class, $content);
-        $form->submit($data);
+        $form = $this->formFactory->create(ContentType::class);
+        $form->handleRequest($request);
 
         if (!$form->isValid()) {
             $errors = $this->getErrors($form);
@@ -85,7 +83,55 @@ class ContentController
             return $this->createErrorResponse($errors);
         }
 
+        $form->getData()->update($content);
         $this->manager->update($content);
+
+        return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function batchUpdateAction(Request $request)
+    {
+        if (!$this->isAuthorized()) {
+            return new JsonResponse(null, JsonResponse::HTTP_FORBIDDEN);
+        }
+
+        $form = $this->formFactory->create(BatchType::class);
+        $form->handleRequest($request);
+
+        if (!$form->isValid()) {
+            $errors = $this->getErrors($form);
+
+            return $this->createErrorResponse($errors);
+        }
+
+        $errors = [];
+        $contents = [];
+
+        foreach ($form->getData()->contents as $data) {
+            $content = $this->manager->find($data->id);
+
+            if (null === $content) {
+                $errors[] = $this->createContentNotFoundError($data->id);
+
+                continue;
+            }
+
+            $data->update($content);
+            $contents[] = $content;
+        }
+
+        if (0 !== count($errors)) {
+            return $this->createErrorResponse($errors);
+        }
+
+        foreach ($contents as $content) {
+            $this->manager->update($content);
+        }
 
         return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
     }
@@ -115,5 +161,23 @@ class ContentController
     private function createErrorResponse(array $errors, $status = 400)
     {
         return new JsonResponse(['errors' => $errors], $status);
+    }
+
+    /**
+     * @return bool
+     */
+    private function isAuthorized()
+    {
+        return $this->authorizationChecker->isGranted('ROLE_ADMIN');
+    }
+
+    /**
+     * @param $id
+     *
+     * @return array
+     */
+    private function createContentNotFoundError($id)
+    {
+        return ['title' => sprintf('Content with id "%s" was not found.', $id)];
     }
 }

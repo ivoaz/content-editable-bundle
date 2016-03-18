@@ -12,8 +12,10 @@
 namespace Ivoaz\Bundle\ContentEditableBundle\Tests\Controller;
 
 use Ivoaz\Bundle\ContentEditableBundle\Controller\ContentController;
-use Ivoaz\Bundle\ContentEditableBundle\Manager\ContentManagerInterface;
 use Ivoaz\Bundle\ContentEditableBundle\Entity\Content;
+use Ivoaz\Bundle\ContentEditableBundle\Form\Model\Batch;
+use Ivoaz\Bundle\ContentEditableBundle\Form\Model\Content as FormContent;
+use Ivoaz\Bundle\ContentEditableBundle\Manager\ContentManagerInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -72,7 +74,7 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
         $response = $this->controller->updateAction($request);
 
         $expectedResponse = new JsonResponse(
-            ['errors' => [['title' => sprintf('Content with id "1" does not exist.')]]],
+            ['errors' => [['title' => sprintf('Content with id "1" was not found.')]]],
             400
         );
 
@@ -125,6 +127,9 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
         $this->form->method('isValid')
             ->willReturn(true);
 
+        $this->form->method('getData')
+            ->willReturn(new FormContent());
+
         $this->manager->expects($this->once())
             ->method('update')
             ->with($content);
@@ -137,16 +142,108 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedResponse, $response);
     }
 
-    public function testUpdateActionIsForbidden()
+    public function testBatchUpdateActionReturnsErrorWhenContentNotFound()
+    {
+        $this->setAuthorized(true);
+
+        $this->form->method('isValid')
+            ->willReturn(true);
+
+        $this->form->method('getData')
+            ->willReturn($this->getBatch());
+
+        $this->manager->method('find')
+            ->willReturn(null);
+
+        $response = $this->controller->batchUpdateAction(new Request());
+
+        $expectedResponse = new JsonResponse(
+            [
+                'errors' => [
+                    ['title' => 'Content with id "1" was not found.'],
+                    ['title' => 'Content with id "2" was not found.'],
+                ],
+            ],
+            400
+        );
+
+        $this->assertEquals($expectedResponse, $response);
+    }
+
+    public function testBatchUpdateActionReturnsFormErrors()
+    {
+        $this->setAuthorized(true);
+
+        $this->form->method('isValid')
+            ->willReturn(false);
+
+        $this->form->method('getErrors')
+            ->with(true, true)
+            ->willReturn(
+                [
+                    new FormError('Test error1'),
+                    new FormError('Test error2'),
+                ]
+            );
+
+        $response = $this->controller->batchUpdateAction(new Request());
+
+        $expectedResponse = new JsonResponse(
+            ['errors' => [['title' => 'Test error1'], ['title' => 'Test error2']]],
+            400
+        );
+
+        $this->assertEquals($expectedResponse, $response);
+    }
+
+    public function testBatchUpdateActionUpdatesContent()
+    {
+        $this->setAuthorized(true);
+
+        $content1 = new Content();
+        $content2 = new Content();
+
+        $this->manager->method('find')
+            ->will($this->returnValueMap([[1, $content1], [2, $content2]]));
+
+        $this->form->method('isValid')
+            ->willReturn(true);
+
+        $this->form->method('getData')
+            ->willReturn($this->getBatch());
+
+        $this->manager->expects($this->exactly(2))
+            ->method('update')
+            ->withConsecutive([$content1], [$content2]);
+
+        $response = $this->controller->batchUpdateAction(new Request());
+
+        $expectedResponse = new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+
+        $this->assertEquals($expectedResponse, $response);
+    }
+
+    /**
+     * @dataProvider getActionIsForbiddenTestData
+     *
+     * @param string $method
+     */
+    public function testActionIsForbidden($method)
     {
         $this->setAuthorized(false);
 
-        $request = new Request([], [], ['id' => 1]);
-        $response = $this->controller->updateAction($request);
-
+        $response = call_user_func([$this->controller, $method], new Request());
         $expectedResponse = new JsonResponse(null, JsonResponse::HTTP_FORBIDDEN);
 
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($expectedResponse, $response, sprintf('Action "%s" should be forbidden.', $method));
+    }
+
+    /**
+     * @return array
+     */
+    public function getActionIsForbiddenTestData()
+    {
+        return [['updateAction'], ['batchUpdateAction']];
     }
 
     /**
@@ -157,5 +254,21 @@ class ContentControllerTest extends \PHPUnit_Framework_TestCase
         $this->authorizationChecker->method('isGranted')
             ->with('ROLE_ADMIN')
             ->willReturn($authorized);
+    }
+
+    /**
+     * @return Batch
+     */
+    private function getBatch()
+    {
+        $batch = new Batch();
+        $batch->contents[] = new FormContent();
+        $batch->contents[] = new FormContent();
+        $batch->contents[0]->id = 1;
+        $batch->contents[1]->id = 2;
+        $batch->contents[0]->text = 'Text 1';
+        $batch->contents[1]->text = 'Text 2';
+
+        return $batch;
     }
 }
