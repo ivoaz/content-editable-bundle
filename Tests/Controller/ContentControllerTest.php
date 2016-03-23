@@ -12,7 +12,7 @@
 namespace Ivoaz\Bundle\ContentEditableBundle\Tests\Controller;
 
 use Ivoaz\Bundle\ContentEditableBundle\Controller\ContentController;
-use Ivoaz\Bundle\ContentEditableBundle\Entity\Content;
+use Ivoaz\Bundle\ContentEditableBundle\Model\Content;
 use Ivoaz\Bundle\ContentEditableBundle\Form\Model\Batch;
 use Ivoaz\Bundle\ContentEditableBundle\Form\Model\BatchContent;
 use Ivoaz\Bundle\ContentEditableBundle\Form\Model\Content as FormContent;

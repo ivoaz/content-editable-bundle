@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Ivoaz\Bundle\ContentEditableBundle\Entity;
+namespace Ivoaz\Bundle\ContentEditableBundle\Model;
 
 /**
  * @author Ivo Azirjans <ivo.azirjans@gmail.com>

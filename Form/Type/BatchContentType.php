@@ -12,7 +12,6 @@
 namespace Ivoaz\Bundle\ContentEditableBundle\Form\Type;
 
 use Ivoaz\Bundle\ContentEditableBundle\Form\Model\BatchContent;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 

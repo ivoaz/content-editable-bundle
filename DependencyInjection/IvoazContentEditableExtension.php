@@ -11,9 +11,9 @@
 
 namespace Ivoaz\Bundle\ContentEditableBundle\DependencyInjection;
 
+use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
 
@@ -22,6 +22,16 @@ use Symfony\Component\DependencyInjection\Loader;
  */
 class IvoazContentEditableExtension extends Extension
 {
+    private static $objectManagers = [
+        Configuration::MODEL_ORM     => 'doctrine.orm.%s_entity_manager',
+        Configuration::MODEL_MONGODB => 'doctrine_mongodb.odm.%s_document_manager',
+    ];
+
+    private static $defaultModelManagerNameParameters = [
+        Configuration::MODEL_ORM     => 'doctrine.default_entity_manager',
+        Configuration::MODEL_MONGODB => 'doctrine_mongodb.odm.default_document_manager',
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -33,12 +43,21 @@ class IvoazContentEditableExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        if (isset($config['editor'])) {
-            $container->getDefinition('ivoaz_content_editable.twig_extension')
-                ->replaceArgument(2, new Reference($config['editor']));
+        $modelType = $config['model_type'];
+        $container->setParameter(sprintf('ivoaz_content_editable.model_type_%s', $modelType), true);
 
-            $container->getDefinition('ivoaz_content_editable.editor_response_listener')
-                ->replaceArgument(0, new Reference($config['editor']));
+        if ($config['model_manager_name']) {
+            $managerName = $config['model_manager_name'];
+        } else {
+            $managerName = $container->getParameter(self::$defaultModelManagerNameParameters[$modelType]);
         }
+
+        $container->setParameter('ivoaz_content_editable.model_manager_name', $managerName);
+
+        $objectManager = sprintf(self::$objectManagers[$modelType], $managerName);
+        $container->setAlias('ivoaz_content_editable.object_manager', new Alias($objectManager, false));
+
+        $editor = $config['editor'];
+        $container->setAlias('ivoaz_content_editable.editor', new Alias($editor, false));
     }
 }

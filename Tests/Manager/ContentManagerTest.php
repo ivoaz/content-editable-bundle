@@ -9,86 +9,77 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Ivoaz\Bundle\ContentEditableBundle\Tests\EntityManager;
+namespace Ivoaz\Bundle\ContentEditableBundle\Tests\Manager;
 
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\UnitOfWork;
-use Ivoaz\Bundle\ContentEditableBundle\EntityManager\ContentManager;
-use Ivoaz\Bundle\ContentEditableBundle\EntityRepository\ContentRepository;
+use Ivoaz\Bundle\ContentEditableBundle\Manager\ContentManager;
 use Ivoaz\Bundle\ContentEditableBundle\Exception\MissingLocaleException;
-use Ivoaz\Bundle\ContentEditableBundle\Entity\Content;
+use Ivoaz\Bundle\ContentEditableBundle\Model\Content;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class ContentManagerTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var EntityManagerInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var ObjectManager|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $em;
+    private $om;
 
     /**
-     * @var UnitOfWork|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $uow;
-
-    /**
-     * @var ContentRepository|\PHPUnit_Framework_MockObject_MockObject
+     * @var ObjectRepository|\PHPUnit_Framework_MockObject_MockObject
      */
     private $repository;
 
     public function setUp()
     {
-        $this->uow = $this->getMock(UnitOfWork::class, ['isInIdentityMap'], [], '', false);
+        $this->repository = $this->getMock(ObjectRepository::class);
 
-        $this->repository = $this->getMock(ContentRepository::class, ['findOneByNameAndLocale'], [], '', false);
-
-        $this->em = $this->getMock(EntityManagerInterface::class);
-        $this->em->method('getUnitOfWork')
-            ->willReturn($this->uow);
-        $this->em->method('getRepository')
+        $this->om = $this->getMock(ObjectManager::class);
+        $this->om->method('getRepository')
             ->with(Content::class)
             ->willReturn($this->repository);
     }
 
-    public function testUpdateFlushesEntity()
+    public function testUpdateFlushesObject()
     {
-        $manager = new ContentManager($this->em);
+        $manager = new ContentManager($this->om);
 
         $content = new Content();
 
-        $this->uow->method('isInIdentityMap')
+        $this->om->method('contains')
             ->with($content)
             ->willReturn(true);
 
-        $this->em->expects($this->once())
+        $this->om->expects($this->once())
             ->method('flush')
             ->with($content);
 
         $manager->update($content);
     }
 
-    public function testUpdateDetachesEntity()
+    public function testUpdateDetachesObject()
     {
-        $manager = new ContentManager($this->em);
+        $manager = new ContentManager($this->om);
 
         $content = new Content();
         $managedContent = new Content();
 
-        $this->uow->method('isInIdentityMap')
+        $this->om->method('contains')
             ->with($content)
             ->willReturn(false);
 
-        $this->em->expects($this->at(1))
+        $this->om->expects($this->at(1))
             ->method('merge')
             ->with($content)
             ->willReturn($managedContent);
 
-        $this->em->expects($this->at(2))
+        $this->om->expects($this->at(2))
             ->method('flush')
             ->with($managedContent);
 
-        $this->em->expects($this->at(3))
+        $this->om->expects($this->at(3))
             ->method('detach')
             ->with($managedContent);
 
@@ -97,33 +88,33 @@ class ContentManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetReturnsFoundContentByNameAndLocale()
     {
-        $manager = new ContentManager($this->em);
+        $manager = new ContentManager($this->om);
 
         $expectedContent = new Content();
 
-        $this->repository->method('findOneByNameAndLocale')
-            ->with('name', 'en')
+        $this->repository->method('findOneBy')
+            ->with(['name' => 'name', 'locale' => 'en'])
             ->willReturn($expectedContent);
 
-        $content = $manager->get('name', 'text', 'en');
+        $content = $manager->get('name', 'en', 'text');
 
         $this->assertSame($expectedContent, $content);
     }
 
     public function testGetCreatesNewContent()
     {
-        $manager = new ContentManager($this->em);
+        $manager = new ContentManager($this->om);
 
         $expectedContent = new Content();
         $expectedContent->setName('name')
             ->setText('text')
             ->setLocale('en');
 
-        $this->repository->method('findOneByNameAndLocale')
-            ->with('name', 'en')
+        $this->repository->method('findOneBy')
+            ->with(['name' => 'name', 'locale' => 'en'])
             ->willReturn(null);
 
-        $this->em->expects($this->once())
+        $this->om->expects($this->once())
             ->method('persist')
             ->with(
                 $this->callback(
@@ -133,7 +124,7 @@ class ContentManagerTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-        $this->em->expects($this->once())
+        $this->om->expects($this->once())
             ->method('flush')
             ->with(
                 $this->callback(
@@ -143,52 +134,52 @@ class ContentManagerTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-        $content = $manager->get('name', 'text', 'en');
+        $content = $manager->get('name', 'en', 'text');
 
         $this->assertEquals($expectedContent, $content);
     }
 
     public function testGetUsesNameForDefaultWhenNotSpecified()
     {
-        $manager = new ContentManager($this->em);
+        $manager = new ContentManager($this->om);
 
         $expectedContent = new Content();
         $expectedContent->setName('name')
             ->setText('name')
             ->setLocale('en');
 
-        $this->repository->method('findOneByNameAndLocale')
-            ->with('name', 'en')
+        $this->repository->method('findOneBy')
+            ->with(['name' => 'name', 'locale' => 'en'])
             ->willReturn(null);
 
-        $content = $manager->get('name', null, 'en');
+        $content = $manager->get('name', 'en');
 
         $this->assertEquals($expectedContent, $content);
     }
 
-    public function testGetDetachesExistingEntity()
+    public function testGetDetachesExistingObject()
     {
-        $manager = new ContentManager($this->em);
+        $manager = new ContentManager($this->om);
 
         $content = new Content();
 
-        $this->repository->method('findOneByNameAndLocale')
-            ->with('name', 'en')
+        $this->repository->method('findOneBy')
+            ->with(['name' => 'name', 'locale' => 'en'])
             ->willReturn($content);
 
-        $this->em->expects($this->once())
+        $this->om->expects($this->once())
             ->method('detach')
             ->with($content);
 
-        $manager->get('name', 'text', 'en');
+        $manager->get('name', 'en', 'text');
     }
 
-    public function testGetDetachesNewEntity()
+    public function testGetDetachesNewObject()
     {
-        $manager = new ContentManager($this->em);
+        $manager = new ContentManager($this->om);
 
-        $this->repository->method('findOneByNameAndLocale')
-            ->with('name', 'en')
+        $this->repository->method('findOneBy')
+            ->with(['name' => 'name', 'locale' => 'en'])
             ->willReturn(null);
 
         $content = new Content();
@@ -196,7 +187,7 @@ class ContentManagerTest extends \PHPUnit_Framework_TestCase
             ->setText('text')
             ->setLocale('en');
 
-        $this->em->expects($this->once())
+        $this->om->expects($this->once())
             ->method('detach')
             ->with(
                 $this->callback(
@@ -206,7 +197,7 @@ class ContentManagerTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-        $manager->get('name', 'text', 'en');
+        $manager->get('name', 'en', 'text');
     }
 
     public function testGetGuessesLocaleFromRequest()
@@ -216,7 +207,7 @@ class ContentManagerTest extends \PHPUnit_Framework_TestCase
         $request->setLocale('en');
         $requests->push($request);
 
-        $manager = new ContentManager($this->em, $requests);
+        $manager = new ContentManager($this->om, $requests);
 
         $content = $manager->get('name');
 
@@ -227,7 +218,7 @@ class ContentManagerTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(MissingLocaleException::class);
 
-        $manager = new ContentManager($this->em);
+        $manager = new ContentManager($this->om);
         $manager->get('name');
     }
 }

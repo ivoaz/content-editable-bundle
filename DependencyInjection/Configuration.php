@@ -19,6 +19,9 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 class Configuration implements ConfigurationInterface
 {
+    const MODEL_ORM = 'orm';
+    const MODEL_MONGODB = 'mongodb';
+
     /**
      * {@inheritdoc}
      */
@@ -27,9 +30,35 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('ivoaz_content_editable');
 
+        $supportedModelTypes = [self::MODEL_ORM, self::MODEL_MONGODB];
+
         $rootNode
+            ->addDefaultsIfNotSet()
             ->children()
-                ->scalarNode('editor')->defaultValue('ivoaz_content_editable.default_editor')
+
+                ->scalarNode('model_type')
+                    ->validate()
+                        ->ifNotInArray($supportedModelTypes)
+                        ->thenInvalid(
+                            sprintf(
+                                'The model type "%%s" is not supported. Please use one of the following model type: %s.',
+                                implode(', ', $supportedModelTypes)
+                            )
+                        )
+                    ->end()
+                    ->cannotBeEmpty()
+                    ->defaultValue(self::MODEL_ORM)
+                ->end()
+
+                ->scalarNode('model_manager_name')
+                    ->defaultValue(null)
+                ->end()
+
+                ->scalarNode('editor')
+                    ->cannotBeEmpty()
+                    ->defaultValue('ivoaz_content_editable.default_editor')
+                ->end()
+
             ->end();
 
         return $treeBuilder;

@@ -31,25 +31,25 @@ class IvoazContentEditableExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $this->extension = new IvoazContentEditableExtension();
         $this->container = new ContainerBuilder();
+
+        $this->container->setParameter('doctrine.default_entity_manager', 'default');
+        $this->container->setParameter('doctrine_mongodb.odm.default_document_manager', 'default');
     }
 
     /**
      * @dataProvider getEditorConfigurationTestData
      *
-     * @param string $expectedEditor
+     * @param string $expected
      * @param array  $configs
      * @param string $message
      */
-    public function testEditorConfiguration($expectedEditor, $configs, $message = '')
+    public function testEditorConfiguration($expected, $configs, $message = '')
     {
         $this->extension->load($configs, $this->container);
 
-        $definition = $this->container->getDefinition('ivoaz_content_editable.twig_extension');
-        $editor = $definition->getArgument(2);
+        $alias = $this->container->getAlias('ivoaz_content_editable.editor');
 
-        $expectedEditor = new Reference($expectedEditor);
-
-        $this->assertEquals($expectedEditor, $editor, $message);
+        $this->assertEquals($expected, $alias, $message);
     }
 
     /**
@@ -58,8 +58,103 @@ class IvoazContentEditableExtensionTest extends \PHPUnit_Framework_TestCase
     public function getEditorConfigurationTestData()
     {
         return [
-            ['ivoaz_content_editable.default_editor', [], 'The default editor was not used.'],
-            ['custom_editor_service', [['editor' => 'custom_editor_service']], 'Custom editor service was not set.'],
+            ['ivoaz_content_editable.default_editor', [], 'The default editor service was not used.'],
+            [
+                'custom_editor_service',
+                ['ivoaz_content_editable' => ['editor' => 'custom_editor_service']],
+                'Custom editor service was not set.',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider getModelTypeConfigurationTestData
+     *
+     * @param string $expected
+     * @param array  $configs
+     * @param string $message
+     */
+    public function testModelTypeConfiguration($expected, $configs, $message = '')
+    {
+        $this->extension->load($configs, $this->container);
+
+        try {
+            $parameter = $this->container->getParameter(sprintf('ivoaz_content_editable.model_type_%s', $expected));
+        } catch (\InvalidArgumentException $e) {
+            $parameter = false;
+        }
+
+        $this->assertTrue($parameter, $message);
+    }
+
+    /**
+     * @return array
+     */
+    public function getModelTypeConfigurationTestData()
+    {
+        return [
+            ['orm', [], 'The default model type was not used.'],
+            [
+                'orm',
+                ['ivoaz_content_editable' => ['model_type' => 'orm']],
+                'The orm model type was not used.',
+            ],
+            [
+                'mongodb',
+                ['ivoaz_content_editable' => ['model_type' => 'mongodb'],],
+                'The mongodb model type was not used.',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider getObjectManagerConfigurationTestData
+     *
+     * @param string $expectedModelManagerName
+     * @param string $expectedObjectManager
+     * @param array  $configs
+     * @param string $message
+     */
+    public function testObjectManagerConfiguration(
+        $expectedModelManagerName,
+        $expectedObjectManager,
+        $configs,
+        $message = ''
+    ) {
+        $this->extension->load($configs, $this->container);
+
+        $alias = $this->container->getAlias('ivoaz_content_editable.object_manager');
+        $modelManagerName = $this->container->getParameter('ivoaz_content_editable.model_manager_name');
+
+        $this->assertEquals($expectedObjectManager, $alias, $message);
+        $this->assertEquals($expectedModelManagerName, $modelManagerName, $message);
+    }
+
+    /**
+     * @return array
+     */
+    public function getObjectManagerConfigurationTestData()
+    {
+        return [
+            ['default', 'doctrine.orm.default_entity_manager', [], 'The default orm object manager was not used.'],
+            [
+                'default',
+                'doctrine.orm.default_entity_manager',
+                ['ivoaz_content_editable' => ['model_type' => 'orm']],
+                'The default orm object manager was not used.',
+            ],
+            [
+                'default',
+                'doctrine_mongodb.odm.default_document_manager',
+                ['ivoaz_content_editable' => ['model_type' => 'mongodb']],
+                'The default mongodb object manager was not used.',
+            ],
+            [
+                'custom',
+                'doctrine_mongodb.odm.custom_document_manager',
+                ['ivoaz_content_editable' => ['model_type' => 'mongodb', 'model_manager_name' => 'custom']],
+                'A custom object manager was not used.',
+            ],
         ];
     }
 }

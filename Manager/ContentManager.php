@@ -9,12 +9,11 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Ivoaz\Bundle\ContentEditableBundle\EntityManager;
+namespace Ivoaz\Bundle\ContentEditableBundle\Manager;
 
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Common\Persistence\ObjectManager;
 use Ivoaz\Bundle\ContentEditableBundle\Exception\MissingLocaleException;
-use Ivoaz\Bundle\ContentEditableBundle\Manager\ContentManagerInterface;
-use Ivoaz\Bundle\ContentEditableBundle\Entity\Content;
+use Ivoaz\Bundle\ContentEditableBundle\Model\Content;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -23,9 +22,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class ContentManager implements ContentManagerInterface
 {
     /**
-     * @var EntityManagerInterface
+     * @var ObjectManager
      */
-    private $em;
+    private $om;
 
     /**
      * @var RequestStack
@@ -33,12 +32,12 @@ class ContentManager implements ContentManagerInterface
     private $requests;
 
     /**
-     * @param EntityManagerInterface $em
-     * @param RequestStack           $requests
+     * @param ObjectManager $om
+     * @param RequestStack  $requests
      */
-    public function __construct(EntityManagerInterface $em, RequestStack $requests = null)
+    public function __construct(ObjectManager $om, RequestStack $requests = null)
     {
-        $this->em = $em;
+        $this->om = $om;
         $this->requests = $requests;
     }
 
@@ -49,22 +48,22 @@ class ContentManager implements ContentManagerInterface
     {
         $managed = true;
 
-        if (!$this->em->getUnitOfWork()->isInIdentityMap($content)) {
+        if (!$this->om->contains($content)) {
             $managed = false;
-            $content = $this->em->merge($content);
+            $content = $this->om->merge($content);
         }
 
-        $this->em->flush($content);
+        $this->om->flush($content);
 
         if (!$managed) {
-            $this->em->detach($content);
+            $this->om->detach($content);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($name, $default = null, $locale = null)
+    public function get($name, $locale = null, $default = null)
     {
         if (null === $locale) {
             if (null === $this->requests || !$request = $this->requests->getMasterRequest()) {
@@ -76,8 +75,13 @@ class ContentManager implements ContentManagerInterface
             $locale = $request->getLocale();
         }
 
-        $content = $this->em->getRepository(Content::class)
-            ->findOneByNameAndLocale($name, $locale);
+        $content = $this->om->getRepository(Content::class)
+            ->findOneBy(
+                [
+                    'name'   => $name,
+                    'locale' => $locale,
+                ]
+            );
 
         if (!$content) {
             if (null === $default) {
@@ -87,19 +91,17 @@ class ContentManager implements ContentManagerInterface
             $content = $this->create($name, $default, $locale);
         }
 
-        $this->em->detach($content);
+        $this->om->detach($content);
 
         return $content;
     }
 
     /**
-     * @param int $id
-     *
-     * @return Content|null
+     * {@inheritdoc}
      */
     public function find($id)
     {
-        $repository = $this->em->getRepository(Content::class);
+        $repository = $this->om->getRepository(Content::class);
 
         return $repository->find($id);
     }
@@ -118,8 +120,8 @@ class ContentManager implements ContentManagerInterface
             ->setText($text)
             ->setLocale($locale);
 
-        $this->em->persist($content);
-        $this->em->flush($content);
+        $this->om->persist($content);
+        $this->om->flush($content);
 
         return $content;
     }

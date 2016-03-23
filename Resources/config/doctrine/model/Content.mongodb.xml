@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<doctrine-mongo-mapping xmlns="http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping
+                  http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping.xsd">
+    <document name="Ivoaz\Bundle\ContentEditableBundle\Model\Content" collection="ivoaz_content_editable">
+        <indexes>
+            <index>
+                <option name="unique" value="true"/>
+                <key name="name" order="asc"/>
+                <key name="locale" order="asc"/>
+            </index>
+        </indexes>
+
+        <field fieldName="id" id="true"/>
+        <field fieldName="name" type="string"/>
+        <field fieldName="locale" type="string"/>
+        <field fieldName="text" type="string"/>
+    </document>
+</doctrine-mongo-mapping>

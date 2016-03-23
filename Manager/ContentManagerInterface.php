@@ -11,7 +11,7 @@
 
 namespace Ivoaz\Bundle\ContentEditableBundle\Manager;
 
-use Ivoaz\Bundle\ContentEditableBundle\Entity\Content;
+use Ivoaz\Bundle\ContentEditableBundle\Model\Content;
 use Ivoaz\Bundle\ContentEditableBundle\Exception\MissingLocaleException;
 
 /**
@@ -30,14 +30,14 @@ interface ContentManagerInterface
      * locale can not be automatically detected, then MissingLocaleException will be thrown.
      *
      * @param string $name
-     * @param string $default
      * @param string $locale
+     * @param string $default
      *
      * @return Content
      *
      * @throws MissingLocaleException
      */
-    public function get($name, $default = null, $locale = null);
+    public function get($name, $locale = null, $default = null);
 
     /**
      * @param mixed $id

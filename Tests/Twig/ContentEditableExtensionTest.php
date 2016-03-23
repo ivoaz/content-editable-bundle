@@ -13,7 +13,7 @@ namespace Ivoaz\Bundle\ContentEditableBundle\Tests\Twig;
 
 use Ivoaz\Bundle\ContentEditableBundle\Editor\EditorInterface;
 use Ivoaz\Bundle\ContentEditableBundle\Manager\ContentManagerInterface;
-use Ivoaz\Bundle\ContentEditableBundle\Entity\Content;
+use Ivoaz\Bundle\ContentEditableBundle\Model\Content;
 use Ivoaz\Bundle\ContentEditableBundle\Twig\ContentEditableExtension;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
@@ -67,7 +67,7 @@ class ContentEditableExtensionTest extends \PHPUnit_Framework_TestCase
             ->setLocale($options['locale']);
 
         $this->manager->method('get')
-            ->with($name, $text, $options['locale'])
+            ->with($name, $options['locale'], $text)
             ->willReturn($content);
 
         $this->authorizationChecker->method('isGranted')

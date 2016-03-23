@@ -7,7 +7,7 @@
     <parameters>
         <parameter key="ivoaz_content_editable.controller.class">Ivoaz\Bundle\ContentEditableBundle\Controller\ContentController</parameter>
         <parameter key="ivoaz_content_editable.default_editor.class">Ivoaz\Bundle\ContentEditableBundle\Editor\DefaultEditor</parameter>
-        <parameter key="ivoaz_content_editable.manager.class">Ivoaz\Bundle\ContentEditableBundle\EntityManager\ContentManager</parameter>
+        <parameter key="ivoaz_content_editable.manager.class">Ivoaz\Bundle\ContentEditableBundle\Manager\ContentManager</parameter>
         <parameter key="ivoaz_content_editable.twig_extension.class">Ivoaz\Bundle\ContentEditableBundle\Twig\ContentEditableExtension</parameter>
         <parameter key="ivoaz_content_editable.editor_response_listener.class">Ivoaz\Bundle\ContentEditableBundle\EventListener\EditorResponseListener</parameter>
     </parameters>
@@ -24,7 +24,7 @@
                  public="false">
             <argument type="service" id="ivoaz_content_editable.manager"/>
             <argument type="service" id="security.authorization_checker"/>
-            <argument type="service" id="ivoaz_content_editable.default_editor"/>
+            <argument type="service" id="ivoaz_content_editable.editor"/>
             <tag name="twig.extension"/>
         </service>
 
@@ -35,13 +35,13 @@
         </service>
 
         <service id="ivoaz_content_editable.manager" class="%ivoaz_content_editable.manager.class%">
-            <argument type="service" id="doctrine.orm.entity_manager"/>
+            <argument type="service" id="ivoaz_content_editable.object_manager"/>
             <argument type="service" id="request_stack"/>
         </service>
 
         <service id="ivoaz_content_editable.editor_response_listener"
                  class="%ivoaz_content_editable.editor_response_listener.class%">
-            <argument type="service" id="ivoaz_content_editable.default_editor"/>
+            <argument type="service" id="ivoaz_content_editable.editor"/>
             <argument type="service" id="security.authorization_checker"/>
             <tag name="kernel.event_listener" event="kernel.response" method="onKernelResponse" priority="-128"/>
         </service>

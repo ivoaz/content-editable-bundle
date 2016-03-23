@@ -11,7 +11,7 @@
 
 namespace Ivoaz\Bundle\ContentEditableBundle\Editor;
 
-use Ivoaz\Bundle\ContentEditableBundle\Entity\Content;
+use Ivoaz\Bundle\ContentEditableBundle\Model\Content;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 

@@ -22,9 +22,9 @@ class Content
     public $text;
 
     /**
-     * @param \Ivoaz\Bundle\ContentEditableBundle\Entity\Content $content
+     * @param \Ivoaz\Bundle\ContentEditableBundle\Model\Content $content
      */
-    public function update(\Ivoaz\Bundle\ContentEditableBundle\Entity\Content $content)
+    public function update(\Ivoaz\Bundle\ContentEditableBundle\Model\Content $content)
     {
         $content->setText($this->text);
     }

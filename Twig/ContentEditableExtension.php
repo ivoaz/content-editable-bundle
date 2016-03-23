@@ -84,7 +84,7 @@ class ContentEditableExtension extends \Twig_Extension
         }
 
         $locale = isset($options['locale']) ? $options['locale'] : null;
-        $content = $this->manager->get($name, $default, $locale);
+        $content = $this->manager->get($name, $locale, $default);
 
         if (!$this->authorizationChecker->isGranted('ROLE_ADMIN')) {
             return $content->getText();
