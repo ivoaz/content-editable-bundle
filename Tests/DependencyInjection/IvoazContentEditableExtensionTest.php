@@ -101,7 +101,7 @@ class IvoazContentEditableExtensionTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 'mongodb',
-                ['ivoaz_content_editable' => ['model_type' => 'mongodb'],],
+                ['ivoaz_content_editable' => ['model_type' => 'mongodb']],
                 'The mongodb model type was not used.',
             ],
         ];

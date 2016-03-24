@@ -13,7 +13,6 @@ namespace Ivoaz\Bundle\ContentEditableBundle\Tests\Manager;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Persistence\ObjectRepository;
-use Doctrine\ORM\UnitOfWork;
 use Ivoaz\Bundle\ContentEditableBundle\Manager\ContentManager;
 use Ivoaz\Bundle\ContentEditableBundle\Exception\MissingLocaleException;
 use Ivoaz\Bundle\ContentEditableBundle\Model\Content;

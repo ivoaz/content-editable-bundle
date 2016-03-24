@@ -165,7 +165,7 @@ class EditorResponseListenerTest extends \PHPUnit_Framework_TestCase
         $request = new Request();
         $response = new Response(
             '<body></body>',
-             200,
+            200,
             ['Content-Type' => 'text/html']
         );
 
