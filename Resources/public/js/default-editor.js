@@ -7,19 +7,20 @@
         return;
     }
 
-    var html = htmlTags[0];
+    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('mousedown', function (event) {
+        var el = event.target
+            , found;
 
-    html.addEventListener('mousedown', onMouseDown);
-    html.addEventListener('mouseup', onMouseUp);
+        while (el && !(found = el.classList.contains('ivoaz-content-editable'))) {
+            el = el.parentElement;
+        }
 
-    var contents = document.getElementsByClassName('ivoaz-content-editable');
+        onMouseDown(event, found ? el : undefined);
+    });
 
-    for (var i=0; i < contents.length; ++i) {
-        contents[i].addEventListener('mousedown', onMouseDown);
-    }
-
-    function onMouseDown(event) {
-        var target = event.currentTarget;
+    function onMouseDown(event, target) {
+        target = target || event.currentTarget;
 
         if (current && current !== target) {
             save();
